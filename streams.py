@@ -10,6 +10,20 @@ Stream: TypeAlias = tuple | tuple[T, Promise[Any]]  # Actually, tuple[T, Promise
 the_empty_stream = ()
 
 
+def memoize(proc: Callable[[], T]) -> Callable[[], T]:
+    already_run: bool = False
+    result: T = None
+
+    def memoized() -> T:
+        nonlocal result, already_run
+        if not already_run:
+            result = proc()
+            already_run = True
+        return result
+
+    return memoized
+
+
 def force(p: Promise[T]) -> T:
     return p()
 
@@ -34,7 +48,7 @@ def rest(s: Stream[T]) -> Stream[T]:
 # noinspection PyShadowingBuiltins
 def range(start: int, finish: int, step: int = 1) -> Stream[int]:
     if start < finish if step > 0 else finish < start:
-        return cons(start, lambda: range(start + step, finish, step))
+        return cons(start, memoize(lambda: range(start + step, finish, step)))
     else:
         return the_empty_stream
 
@@ -62,10 +76,11 @@ def map(proc: Callable[[tuple], T], *ss: tuple[Stream[T]]) -> Stream[T]:
         return the_empty_stream
     else:
         return cons(proc(*[first(s) for s in ss]),
-                    lambda: map(proc, *[rest(s) for s in ss]))
+                    memoize(lambda: map(proc, *[rest(s) for s in ss])))
 
 
 if __name__ == '__main__':
+    # noinspection PyTypeChecker
     foreach(print, map(operator.add,
                        range(10, 20),
                        range(30, 40)))
