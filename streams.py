@@ -34,7 +34,7 @@ def is_null(s: Stream[T]) -> bool:
 
 # noinspection PyShadowingNames
 def cons(first: T, rest: Promise[Stream[T]]) -> Stream[T]:
-    return first, rest
+    return first, memoize(rest)
 
 
 def first(s: Stream[T]) -> T:
@@ -48,7 +48,7 @@ def rest(s: Stream[T]) -> Stream[T]:
 # noinspection PyShadowingBuiltins
 def range(start: int, finish: int, step: int = 1) -> Stream[int]:
     if start < finish if step > 0 else finish < start:
-        return cons(start, memoize(lambda: range(start + step, finish, step)))
+        return cons(start, lambda: range(start + step, finish, step))
     else:
         return the_empty_stream
 
@@ -76,7 +76,7 @@ def map(proc: Callable[[tuple], T], *ss: tuple[Stream[T]]) -> Stream[T]:
         return the_empty_stream
     else:
         return cons(proc(*[first(s) for s in ss]),
-                    memoize(lambda: map(proc, *[rest(s) for s in ss])))
+                    lambda: map(proc, *[rest(s) for s in ss]))
 
 
 if __name__ == '__main__':
