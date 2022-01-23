@@ -1,4 +1,3 @@
-import operator
 from typing import Callable, TypeAlias, TypeVar, Any
 
 T = TypeVar('T')
@@ -81,10 +80,3 @@ def map(proc: Callable[[tuple], T], *ss: tuple[Stream[T]]) -> Stream[T]:
     else:
         return cons(proc(*[first(s) for s in ss]),
                     lambda: map(proc, *[rest(s) for s in ss]))
-
-
-if __name__ == '__main__':
-    # noinspection PyTypeChecker
-    foreach(print, map(operator.add,
-                       range(10, 20),
-                       range(30, 40)))
