@@ -9,6 +9,14 @@ Stream: TypeAlias = tuple | tuple[T, Promise[Any]]  # Actually, tuple[T, Promise
 the_empty_stream = ()
 
 
+def is_null(s: Stream[T]) -> bool:
+    return s == the_empty_stream
+
+
+def force(p: Promise[T]) -> T:
+    return p()
+
+
 def memoize(proc: Callable[[], T]) -> Callable[[], T]:
     already_run: bool = False
     result: T = None
@@ -21,14 +29,6 @@ def memoize(proc: Callable[[], T]) -> Callable[[], T]:
         return result
 
     return memoized
-
-
-def force(p: Promise[T]) -> T:
-    return p()
-
-
-def is_null(s: Stream[T]) -> bool:
-    return s == the_empty_stream
 
 
 # noinspection PyShadowingNames
