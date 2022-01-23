@@ -52,6 +52,11 @@ def range(start: int, finish: int, step: int = 1) -> Stream[int]:
         return the_empty_stream
 
 
+def count(start: int, step: int = 1) -> Stream[int]:
+    return cons(start,
+                lambda: count(start + step))
+
+
 def ref(n: int, s: Stream[T]) -> T:
     while n > 0:
         n, s = n - 1, rest(s)
