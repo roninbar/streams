@@ -53,6 +53,13 @@ def range(start: int, finish: int, step: int = 1) -> Stream[int]:
         return the_empty_stream
 
 
+def ref(n: int, s: Stream[T]) -> T:
+    while n > 0:
+        n, s = n - 1, rest(s)
+    else:
+        return first(s)
+
+
 def foreach(proc: Callable[[T], None], s: Stream[T]) -> None:
     while not is_null(s):
         proc(first(s))
