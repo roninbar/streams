@@ -68,13 +68,10 @@ def foreach(proc: Callable[[T], None], s: Stream[T]) -> None:
 
 # noinspection PyShadowingBuiltins
 def filter(test: Callable[[T], bool], s: Stream[T]) -> Stream[T]:
-    if is_null(s):
-        return the_empty_stream
-    elif test(first(s)):
-        return cons(first(s),
-                    filter(test, rest(s)))
+    while not is_null(s) and not test(first(s)):
+        s = rest(s)
     else:
-        return filter(test, rest(s))
+        return the_empty_stream if is_null(s) else cons(first(s), lambda: filter(test, rest(s)))
 
 
 # noinspection PyShadowingBuiltins
