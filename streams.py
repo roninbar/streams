@@ -54,9 +54,9 @@ def range(start: int, finish: int, step: int = 1) -> Stream[int]:
 
 
 def foreach(proc: Callable[[T], None], s: Stream[T]) -> None:
-    if not is_null(s):
+    while not is_null(s):
         proc(first(s))
-        foreach(proc, rest(s))
+        s = rest(s)
 
 
 # noinspection PyShadowingBuiltins
