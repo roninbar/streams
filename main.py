@@ -16,4 +16,6 @@ def is_prime(n: int) -> bool:
 
 
 if __name__ == '__main__':
-    streams.foreach(print, streams.filter(is_prime, streams.range(10_000, 1_000_000)))
+    streams.foreach(lambda p: print(f'{p:,d}'),
+                    streams.filter(is_prime,
+                                   streams.range(10_000, 100_000)))
