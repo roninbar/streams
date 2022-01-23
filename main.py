@@ -1,6 +1,6 @@
 import operator
 
-from streams import Stream, foreach, filter, cons, first, rest, count, map
+from streams import Stream, foreach, filter, cons, first, rest, count, map, dropwhile, takewhile
 
 
 def is_prime(n: int) -> bool:
@@ -33,4 +33,7 @@ fibs = cons(0, lambda: cons(1, lambda: add(rest(fibs), fibs)))
 primes = cons(2, lambda: filter(is_prime, count(3)))
 
 if __name__ == '__main__':
-    foreach(lambda p: print(f'{p:,d}'), primes)
+    foreach(lambda p: print(f'{p:,d}'),
+            takewhile(lambda n: n < 20,
+                      dropwhile(lambda n: n < 10,
+                                integers)))

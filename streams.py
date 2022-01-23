@@ -85,3 +85,19 @@ def map(proc: Callable[[tuple], T], *ss: tuple[Stream[T]]) -> Stream[T]:
     else:
         return cons(proc(*[first(s) for s in ss]),
                     lambda: map(proc, *[rest(s) for s in ss]))
+
+
+def takewhile(test: Callable[[T], bool], s: Stream[T]) -> Stream[T]:
+    if is_null(s):
+        return the_empty_stream
+    elif test(first(s)):
+        return cons(first(s), lambda: takewhile(test, rest(s)))
+    else:
+        return the_empty_stream
+
+
+def dropwhile(test: Callable[[T], bool], s: Stream[T]) -> Stream[T]:
+    while not is_null(s) and test(first(s)):
+        s = rest(s)
+    else:  # is_null(s) or not test(first(s))
+        return the_empty_stream if is_null(s) else s
