@@ -32,50 +32,50 @@ def memoize(proc: Callable[[], T]) -> Callable[[], T]:
 
 
 # noinspection PyShadowingNames
-def cons(first: T, rest: Promise[Stream[T]]) -> Stream[T]:
-    return first, memoize(rest)
+def pair(head: T, tail: Promise[Stream[T]]) -> Stream[T]:
+    return head, memoize(tail)
 
 
-def first(s: Stream[T]) -> T:
+def head(s: Stream[T]) -> T:
     return s[0]
 
 
-def rest(s: Stream[T]) -> Stream[T]:
+def tail(s: Stream[T]) -> Stream[T]:
     return force(s[1])
 
 
 # noinspection PyShadowingBuiltins
 def range(start: int, finish: int, step: int = 1) -> Stream[int]:
     if start < finish if step > 0 else finish < start:
-        return cons(start, lambda: range(start + step, finish, step))
+        return pair(start, lambda: range(start + step, finish, step))
     else:
         return the_empty_stream
 
 
 def count(start: int, step: int = 1) -> Stream[int]:
-    return cons(start,
+    return pair(start,
                 lambda: count(start + step))
 
 
 def ref(n: int, s: Stream[T]) -> T:
     while n > 0:
-        n, s = n - 1, rest(s)
+        n, s = n - 1, tail(s)
     else:
-        return first(s)
+        return head(s)
 
 
 def foreach(proc: Callable[[T], None], s: Stream[T]) -> None:
     while not is_null(s):
-        proc(first(s))
-        s = rest(s)
+        proc(head(s))
+        s = tail(s)
 
 
 # noinspection PyShadowingBuiltins
 def filter(test: Callable[[T], bool], s: Stream[T]) -> Stream[T]:
-    while not is_null(s) and not test(first(s)):
-        s = rest(s)
+    while not is_null(s) and not test(head(s)):
+        s = tail(s)
     else:
-        return the_empty_stream if is_null(s) else cons(first(s), lambda: filter(test, rest(s)))
+        return the_empty_stream if is_null(s) else pair(head(s), lambda: filter(test, tail(s)))
 
 
 # noinspection PyShadowingBuiltins
@@ -83,21 +83,19 @@ def map(proc: Callable[[tuple], T], *ss: tuple[Stream[T]]) -> Stream[T]:
     if is_null(ss[0]):
         return the_empty_stream
     else:
-        return cons(proc(*[first(s) for s in ss]),
-                    lambda: map(proc, *[rest(s) for s in ss]))
+        return pair(proc(*[head(s) for s in ss]),
+                    lambda: map(proc, *[tail(s) for s in ss]))
 
 
 def takewhile(test: Callable[[T], bool], s: Stream[T]) -> Stream[T]:
-    if is_null(s):
+    if is_null(s) or not test(head(s)):
         return the_empty_stream
-    elif test(first(s)):
-        return cons(first(s), lambda: takewhile(test, rest(s)))
     else:
-        return the_empty_stream
+        return pair(head(s), lambda: takewhile(test, tail(s)))
 
 
 def dropwhile(test: Callable[[T], bool], s: Stream[T]) -> Stream[T]:
-    while not is_null(s) and test(first(s)):
-        s = rest(s)
-    else:  # is_null(s) or not test(first(s))
-        return the_empty_stream if is_null(s) else s
+    while not is_null(s) and test(head(s)):
+        s = tail(s)
+    else:  # is_null(s) or not test(head(s))
+        return s
